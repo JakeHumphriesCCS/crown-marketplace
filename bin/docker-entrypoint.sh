@@ -2,9 +2,8 @@
 
 # remove the next lines:
 # bundle exec rails rails db:environment:set RAILS_ENV=production
-bundle exec rails db:drop
-bundle exec rails rails db:environment:set RAILS_ENV=production
-# bundle exec rails db:setup
+# bundle exec rails db:drop
+bundle exec rails db:setup
 
 # bundle exec rails db:migrate
 
