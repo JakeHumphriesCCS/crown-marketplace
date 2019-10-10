@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# remove the next line
+bundle exec rails db:drop
+
 bundle exec rails db:migrate
 
 bundle exec rails db:static
