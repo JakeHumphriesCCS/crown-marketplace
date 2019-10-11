@@ -1,7 +1,7 @@
 class AddLastUpdatedTofacilitiesManagementBuildings < ActiveRecord::Migration[5.2]
   def change
-    add_column :facilities_management_buildings, :updated_at, :datetime unless column_exists? :updated_at
-    add_column :facilities_management_buildings, :status, :string, null: false, default: 'Incomplete' unless column_exists? :status
+    add_column :facilities_management_buildings, :updated_at, :datetime unless column_exists? :facilities_management_buildings, :updated_at, :datetime
+    add_column :facilities_management_buildings, :status, :string, null: false, default: 'Incomplete' unless column_exists? :facilities_management_buildings, :status, :status
     change_column_default :facilities_management_buildings, :updated_at, from: nil, to: 'now()'
   end
 end
