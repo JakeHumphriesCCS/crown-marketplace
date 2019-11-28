@@ -362,7 +362,9 @@ module FacilitiesManagement
 
       copy_params building_data, uvals
 
-      uvals.each do |v|
+      uvals2 = uvals.reject { |x| x[:service_code] == 'M.1' || x[:service_code] == 'N.1'}
+
+      uvals2.each do |v|
         uom_value = v[:uom_value].to_f
 
         if v[:service_code] == 'G.3' || (v[:service_code] == 'G.1')
