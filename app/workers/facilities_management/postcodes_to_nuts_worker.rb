@@ -2,7 +2,7 @@ require 'rake'
 module FacilitiesManagement
   class PostcodesToNutsWorker
     include Sidekiq::Worker
-    sidekiq_options queue: 'fm'
+    sidekiq_options queue: 'fm', retry: false, backtrace: true
 
     def perform
       Rake::Task.clear
