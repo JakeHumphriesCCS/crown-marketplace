@@ -133,10 +133,6 @@ module FacilitiesManagement
         transitions to: :accepted_signed
       end
       
-      event :set_to_accepted_not_signed do
-        transitions to: :accepted_not_signed
-      end
-      
       event :set_to_declined do
         transitions to: :declined
       end
