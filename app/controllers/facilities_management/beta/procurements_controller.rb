@@ -46,6 +46,7 @@ module FacilitiesManagement
 
       # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def edit
+        @procurement.procurement_pension_funds.build
         if @procurement.quick_search?
           render :edit
         else
@@ -62,7 +63,7 @@ module FacilitiesManagement
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
       def update
         continue_to_summary && return if params['change_requirements'].present?
 
@@ -72,9 +73,11 @@ module FacilitiesManagement
 
         continue_to_contract_details && return if params['continue_da'].present?
 
+        continue_to_procurment_pension_funds && return if params['facilities_management_procurement']['step'] == 'local_government_pension_scheme'
+
         update_procurement if params['facilities_management_procurement'].present?
       end
-      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 
       # DELETE /procurements/1
       # DELETE /procurements/1.json
@@ -101,9 +104,14 @@ module FacilitiesManagement
 
       private
 
+      # rubocop:disable Metrics/AbcSize
       def set_view_data
         set_current_step
-        view_name = FacilitiesManagement::ProcurementRouter.new(id: @procurement.id, procurement_state: @procurement.aasm_state, step: params[:step]).view
+        view_name = if !params[:step].nil? && FacilitiesManagement::ProcurementRouter::DA_JOURNEY_STATES_TO_VIEWS.include?(params[:step].to_sym)
+                      'edit'
+                    else
+                      FacilitiesManagement::ProcurementRouter.new(id: @procurement.id, procurement_state: @procurement.aasm_state, step: params[:step]).view
+                    end
         build_page_details(view_name.to_sym)
 
         case view_name
@@ -120,6 +128,7 @@ module FacilitiesManagement
 
         view_name
       end
+      # rubocop:enable Metrics/AbcSize
 
       def update_procurement
         assign_procurement_parameters
@@ -180,6 +189,21 @@ module FacilitiesManagement
           redirect_to facilities_management_beta_procurement_path(@procurement)
         else
           redirect_to facilities_management_beta_procurement_path(@procurement, validate: true)
+        end
+      end
+
+      def continue_to_procurment_pension_funds
+        if params['facilities_management_procurement']['local_government_pension_scheme'] == 'true'
+          @procurement.assign_attributes(local_government_pension_scheme: true)
+          @procurement.save
+          redirect_to edit_facilities_management_beta_procurement_path(id: @procurement.id, step: 'pension_funds')
+        elsif params['facilities_management_procurement']['local_government_pension_scheme'] == 'false'
+          @procurement.assign_attributes(local_government_pension_scheme: false)
+          @procurement.save
+          @procurement.procurement_pension_funds.destroy_all
+          redirect_to facilities_management_beta_procurement_path(id: @procurement.id)
+        else
+          redirect_to edit_facilities_management_beta_procurement_path(id: @procurement.id, step: 'local_government_pension_scheme')
         end
       end
 
@@ -266,6 +290,7 @@ module FacilitiesManagement
                 :security_policy_document_date_mm,
                 :security_policy_document_date_yyyy,
                 :security_policy_document_file,
+                :local_government_pension_scheme,
                 service_codes: [],
                 region_codes: [],
                 procurement_buildings_attributes: [:id,
@@ -276,7 +301,8 @@ module FacilitiesManagement
                                                    :county,
                                                    :postcode,
                                                    :active,
-                                                   service_codes: []]
+                                                   service_codes: []],
+                procurement_pension_funds_attributes: %i[id name percentage _destroy]
               )
       end
 
@@ -406,6 +432,7 @@ module FacilitiesManagement
         @page_details ||= page_definitions[:default].merge(page_definitions[action.to_sym])
       end
 
+      # rubocop:disable Metrics/MethodLength
       def da_journey_definitions
         @da_journey_definitions ||= {
           default: {
@@ -427,12 +454,45 @@ module FacilitiesManagement
             back_url: '#',
             back_text: 'Back',
             page_title: 'Payment method',
+            caption1: @procurement[:contract_name],
             continuation_text: 'Save and return',
             return_text: 'Return to contract details',
+            return_url: '#'
+          },
+          invoicing_contact_details: {
+            back_url: '#',
+            back_text: 'Back',
+            back_label: 'Back',
+            page_title: 'Invoicing contact details',
+            caption1: @procurement[:contract_name],
+            continuation_text: 'Continue',
             return_url: '#',
+            return_text: 'Return to contract details',
+            secondary_text: 'Return to contract details'
+          },
+          local_government_pension_scheme: {
+            back_label: 'Back',
+            back_text: 'Back',
+            back_url: facilities_management_beta_procurement_path(@procurement),
+            page_title: 'Local Government Pension Scheme',
+            caption1: @procurement[:contract_name],
+            continuation_text: 'Save and continue',
+            return_text: 'Return to contract details',
+            return_url: facilities_management_beta_procurement_path(@procurement)
+          },
+          pension_funds: {
+            back_label: 'Back',
+            back_text: 'Back',
+            back_url: edit_facilities_management_beta_procurement_path(id: @procurement.id, step: 'local_government_pension_scheme'),
+            page_title: 'Pension funds',
+            caption1: @procurement[:contract_name],
+            continuation_text: 'Save and return',
+            return_text: 'Return to contract details',
+            return_url: facilities_management_beta_procurement_path(@procurement)
           }
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       def page_definitions
         @page_definitions ||= {

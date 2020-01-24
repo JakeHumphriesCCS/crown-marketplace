@@ -7,9 +7,9 @@
                     <div class="govuk-radios__item govuk-!-margin-bottom-6">
                         <input class="govuk-radios__input" id="contact_name" name="select_an_invoicing_contact" type="radio" value="name"/>
                         <label class="govuk-label govuk-radios__label" for="direct_award">
-                            <%= "#{@page_data[:invoicing_contact_full_name]}, #{@page_data[:invoicing_contact_job_title]}" %>
+                            <%= "#{@page_data[:model_object].user.buyer_detail.full_name}, #{@page_data[:model_object].user.buyer_detail.job_title}" %>
                             <span class="govuk-caption-m govuk-!-margin-top-2">
-                                <%= @page_data[:invoicing_contact_address] %>
+                                <%= @page_data[:model_object].user.buyer_detail.full_organisation_address %>
                             </span>
                         </label>
                     </div>
