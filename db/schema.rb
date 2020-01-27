@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_21_104947) do
+ActiveRecord::Schema.define(version: 2020_01_21_135030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -82,10 +82,19 @@ ActiveRecord::Schema.define(version: 2019_11_21_104947) do
     t.index ["facilities_management_procurement_id"], name: "index_fm_procurements_on_fm_procurement_id"
   end
 
+  create_table "facilities_management_procurement_suppliers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "facilities_management_procurement_id", null: false
+    t.uuid "supplier_id"
+    t.money "direct_award_value", scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facilities_management_procurement_id"], name: "index_fm_procurement_supplier_on_fm_procurement_id"
+  end
+
   create_table "facilities_management_procurements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.string "name", limit: 100
-    t.string "aasm_state", limit: 15
+    t.string "aasm_state", limit: 30
     t.string "updated_by", limit: 100
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -110,6 +119,14 @@ ActiveRecord::Schema.define(version: 2019_11_21_104947) do
     t.string "security_policy_document_version_number"
     t.date "security_policy_document_date"
     t.string "security_policy_document_file"
+    t.string "lot_number"
+    t.money "assessed_value", scale: 2
+    t.boolean "eligible_for_da"
+    t.datetime "date_offer_sent"
+    t.string "da_journey_state"
+    t.date "contract_start_date"
+    t.date "closed_contract_date"
+    t.boolean "is_contract_closed", default: false
     t.index ["user_id"], name: "index_facilities_management_procurements_on_user_id"
   end
 
@@ -175,13 +192,14 @@ ActiveRecord::Schema.define(version: 2019_11_21_104947) do
     t.index ["data"], name: "idx_fm_rate_cards_ginp", opclass: :jsonb_path_ops, using: :gin
   end
 
-  create_table "fm_rates", id: false, force: :cascade do |t|
-    t.text "code"
+  create_table "fm_rates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "code", limit: 5
     t.decimal "framework"
     t.decimal "benchmark"
+    t.string "standard", limit: 1
+    t.boolean "direct_award"
     t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }
     t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }
-    t.index ["code"], name: "fm_rates_code_key", unique: true
   end
 
   create_table "fm_regions", id: false, force: :cascade do |t|
@@ -453,6 +471,13 @@ ActiveRecord::Schema.define(version: 2019_11_21_104947) do
     t.index ["filename"], name: "os_address_admin_uploads_filename_idx", unique: true
   end
 
+  create_table "postcodes_nuts_regions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "postcode", limit: 255
+    t.string "code", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "supply_teachers_admin_current_data", force: :cascade do |t|
     t.string "current_accredited_suppliers", limit: 255
     t.string "geographical_data_all_suppliers", limit: 255
@@ -547,6 +572,7 @@ ActiveRecord::Schema.define(version: 2019_11_21_104947) do
   add_foreign_key "facilities_management_buyer_details", "users"
   add_foreign_key "facilities_management_procurement_building_services", "facilities_management_procurement_buildings"
   add_foreign_key "facilities_management_procurement_buildings", "facilities_management_procurements"
+  add_foreign_key "facilities_management_procurement_suppliers", "facilities_management_procurements"
   add_foreign_key "facilities_management_procurements", "users"
   add_foreign_key "facilities_management_regional_availabilities", "facilities_management_suppliers"
   add_foreign_key "facilities_management_service_offerings", "facilities_management_suppliers"

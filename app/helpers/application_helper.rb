@@ -254,13 +254,17 @@ module ApplicationHelper
     send controller.class.parent_name.underscore.tr('/', '_') + '_gateway_path' if controller.class.parent_name && controller.class.parent_name != 'CcsPatterns'
   end
 
+  # rubocop:disable Metrics/AbcSize
   def service_destroy_user_session_path
     if controller.class.parent_name && controller.class.parent_name != 'CcsPatterns'
+      send "#{controller.class.parent_name.underscore.tr('/', '_')}_destroy_user_session_path"
+    elsif controller.class.parent_name && controller.class.parent_name == 'FacilitiesManagement::Beta::Supplier'
       send "#{controller.class.parent_name.underscore.tr('/', '_')}_destroy_user_session_path"
     else
       send 'destroy_user_session_path'
     end
   end
+  # rubocop:enable Metrics/AbcSize
 
   def landing_or_admin_page
     (PLATFORM_LANDINGPAGES.include?(controller.class.controller_path) && controller.action_name == 'index') || controller.action_name == 'landing_page' || ADMIN_CONTROLLERS.include?(controller.class.parent_name.try(:underscore))
@@ -274,12 +278,24 @@ module ApplicationHelper
     request.path_info.include? 'buyer-account'
   end
 
+  def fm_supplier_landing_page
+    request.path_info.include? 'supplier-account'
+  end
+
   def not_permitted_page
     controller.action_name == 'not_permitted'
   end
 
   def a_supply_teachers_path?
     controller.class.parent.name == 'SupplyTeachers'
+  end
+
+  def format_date(date_object)
+    date_object&.strftime '%e %B %Y'
+  end
+
+  def format_date_time(date_object)
+    date_object&.strftime '%e %B %Y, %l:%M%P'
   end
 end
 # rubocop:enable Metrics/ModuleLength

@@ -349,4 +349,97 @@ RSpec.describe FacilitiesManagement::Procurement, type: :model do
       expect { procurement.save }.to change { procurement.procurement_buildings.first.service_codes }.from(['C.1', 'C.2']).to([])
     end
   end
+
+  describe '#requires_service_information' do
+    context 'when a building has services that require questions' do
+      it 'is in the array' do
+        procurement_building = create(:facilities_management_procurement_building, procurement: procurement, service_codes: ['C.5', 'E.4', 'K.8'])
+        expect(procurement.procurement_buildings.requires_service_information).to eq [procurement_building]
+      end
+    end
+
+    context 'when a building has no services that require questions' do
+      it 'is not in the array' do
+        procurement_building = create(:facilities_management_procurement_building, procurement: procurement, service_codes: ['K.11', 'K.14', 'K.8'])
+        expect(procurement.procurement_buildings.requires_service_information).not_to eq [procurement_building]
+      end
+    end
+
+    context 'when a building has a service that require questions' do
+      it 'is in the array' do
+        procurement_building = create(:facilities_management_procurement_building, procurement: procurement, service_codes: ['K.7'])
+        expect(procurement.procurement_buildings.requires_service_information).to eq [procurement_building]
+      end
+    end
+
+    context 'when a building has no services' do
+      it 'is not in the array' do
+        procurement_building = create(:facilities_management_procurement_building, procurement: procurement, service_codes: [])
+        expect(procurement.procurement_buildings.requires_service_information).not_to eq [procurement_building]
+      end
+    end
+  end
+
+  describe '#save_eligible_suppliers' do
+    context 'when no eligible suppliers' do
+      it 'does not create any procurement suppliers' do
+        # rubocop:disable RSpec/AnyInstance
+        allow_any_instance_of(FacilitiesManagement::DirectAwardEligibleSuppliers).to receive(:sorted_list).and_return([])
+        # rubocop:enable RSpec/AnyInstance
+        expect { procurement.save_eligible_suppliers }.to change { FacilitiesManagement::ProcurementSupplier.count }.by(0)
+      end
+    end
+
+    context 'when some eligible suppliers' do
+      let(:da_value_test) { 865.2478374540002 }
+      let(:da_value_test1) { 1517.20280381278 }
+      let(:supplier_uuid) { 'eb7b05da-e52e-46a3-99ae-2cb0e6226232' }
+
+      before do
+        # rubocop:disable RSpec/AnyInstance, RSpec/SubjectStub
+        allow(CCS::FM::Supplier.supplier_name('any')).to receive(:id).and_return(supplier_uuid)
+        allow_any_instance_of(FacilitiesManagement::DirectAwardEligibleSuppliers).to receive(:sorted_list).and_return([[:test, da_value_test], [:test1, da_value_test1]])
+        allow_any_instance_of(DirectAward).to receive(:calculate).and_return(true)
+        allow(procurement).to receive(:buildings_standard).and_return('STANDARD')
+        # rubocop:enable RSpec/AnyInstance, RSpec/SubjectStub
+      end
+
+      it 'creates procurement_suppliers' do
+        expect { procurement.save_eligible_suppliers }.to change { FacilitiesManagement::ProcurementSupplier.count }.by(2)
+      end
+      it 'creates procurement_suppliers with the right direct award value' do
+        procurement.save_eligible_suppliers
+        expect(procurement.procurement_suppliers.first.direct_award_value).to eq da_value_test
+        expect(procurement.procurement_suppliers.last.direct_award_value).to eq da_value_test1
+      end
+      it 'creates procurement_suppliers with the right CCS::FM::Supplier id' do
+        procurement.save_eligible_suppliers
+        expect(procurement.procurement_suppliers.first.supplier_id).to eq supplier_uuid
+      end
+    end
+  end
+
+  describe '#priced_at_framework' do
+    context 'when one of the services is not priced at framework' do
+      before do
+        procurement.procurement_building_services.first.update(code: 'C.1', service_standard: 'A')
+        procurement.procurement_building_services.last.update(code: 'C.2', service_standard: 'C')
+      end
+
+      it 'returns false' do
+        expect(procurement.send(:priced_at_framework)).to eq false
+      end
+    end
+
+    context 'when all services are priced at framework' do
+      before do
+        procurement.procurement_building_services.first.update(code: 'C.1', service_standard: 'A')
+        procurement.procurement_building_services.last.update(code: 'C.2', service_standard: 'A')
+      end
+
+      it 'returns true' do
+        expect(procurement.send(:priced_at_framework)).to eq true
+      end
+    end
+  end
 end

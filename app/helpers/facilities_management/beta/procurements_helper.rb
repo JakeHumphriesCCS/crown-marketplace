@@ -88,4 +88,23 @@ module FacilitiesManagement::Beta::ProcurementsHelper
 
     t('common.complete')
   end
+
+  PROCUREMENT_STATE = { da_draft: 'DA draft',
+                        further_competition: 'Further competition',
+                        results: 'Results',
+                        quick_search: 'Quick search',
+                        detailed_search: 'Detailed search',
+                        awaiting_supplier_response: 'Awaiting supplier response',
+                        supplier_declined: 'Supplier declined',
+                        no_supplier_response: 'No supplier response',
+                        awaiting_contract_signature: 'Awaiting contract signature',
+                        accepted_not_signed: 'Accepted, not signed',
+                        accepted_and_signed: 'Accepted and signed',
+                        closed: 'closed' }.freeze
+
+  def procurement_state(procurement_state)
+    return procurement_state.humanize unless PROCUREMENT_STATE.key?(procurement_state.to_sym)
+
+    PROCUREMENT_STATE[procurement_state.to_sym]
+  end
 end

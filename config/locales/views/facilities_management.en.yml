@@ -40,6 +40,8 @@ en:
             wednesday:
               invalid: Select not required if you don't need the service on Wednesday
               not_a_date: Enter a real start time or end time for Wednesday
+        user:
+          incorrect_username_or_password: You must provide a correct username or password
   activerecord:
     errors:
       models:
@@ -88,8 +90,8 @@ en:
               too_long: Your contract name must be 100 characters or fewer
               too_short: Enter your contract name
             estimated_annual_cost:
-              blank: Estimated annual cost must be an amount of money, like 12000 or 1200.45
-              greater_than_or_equal_to: Estimated annual cost must be an amount of money, like 12000 or 1200.45
+              blank: The estimated annual cost must be an amount of money, such as £12,000 or £1,200.45
+              greater_than_or_equal_to: The estimated annual cost must be an amount of money, such as £12,000 or £1,200.45
             estimated_cost_known:
               inclusion: Select yes if you know your annual cost, if you do not please select no
               not_present: You must answer the question about 'Estimated cost'
@@ -126,6 +128,8 @@ en:
               not_present: You must select at least one building
             region_codes:
               invalid: Select at least one region you need to include in your procurement
+            route_to_market:
+              inclusion: Select direct award if you want to award a contract directly to the supplier with the best price
             security_policy_document_date:
               not_a_date: The selected date is not valid
             security_policy_document_file:
@@ -207,20 +211,18 @@ en:
         add_desc_text: Add description
         add_name_text: Add name
         answer_question_text: Answer question
-        building_was_saved: Your building was saved.  "%{name}" is ready for procurement.
         caption_addr: Address
         caption_desc: Description
         caption_gia: Gross internal area
         caption_name: Name
-        caption_reference: Reference
+        caption_region_nuts: Location (NUTS region)
         caption_sec: Security clearance
         caption_type: Building type
         change_text: Change
         no_data_message: There are no building details to view
         return_to_management_text: Return to manage buildings
         section-header: Building details summary
-        select_one_option_text: Select one option
-        status_warning_message: Your building was saved.  "%{name}" is incomplete.  You need to answer all questions to be used in procurement.
+        select_one_option_text: Please select one option
       building-gross-internal-area:
         add_header: Add building GIA
         edit_header: Change building GIA
@@ -237,7 +239,7 @@ en:
           facilities_management:
             beta:
               index:
-                manage_procurements_link: Procurement dashboard
+                manage_procurements_link: Procurements dashboard
           link_text: Update buyer details
       buyer_details:
         edit:
@@ -285,7 +287,7 @@ en:
         no_buildings_text: You have no saved buildings
         procurements_dashboard_button: Procurements dashboard
         start_paragraph: You will use your buildings to inform suppliers where you want particular services to be delivered to. Once set up, your buildings can be reused in this system for other FM procurements.
-        start_warning: When creating your buildings, you are not restricted to creating just full buildings. For example, you may choose to set up just a floor within a building, or a specific area. Ultimately, your service pricing will be broken down to show a cost per service per 'building', allowing your to manage your contract effectively. You should therefore create buildings dependent on the level of detail you require.
+        start_warning: When creating your buildings, you are not restricted to creating just full buildings. For example, you may choose to set up just a floor within a building, or a specific area. Ultimately, your service pricing will be broken down to da_buyer a cost per service per 'building', allowing your to manage your contract effectively. You should therefore create buildings dependent on the level of detail you require.
       passwords:
         edit:
           confirm_code: Confirm Code
@@ -395,6 +397,35 @@ en:
       procurements:
         about_the_contract:
           no_cost_provided: None
+        da_buyer:
+          contract_details:
+            authorised_representative: Authorised representative
+            contract_details_description: Please provide further information that will help us put your contract together.
+            invoicing_contact_details: Invoicing contact details
+            local_government_pension_scheme: Local Government Pension Scheme
+            notices_contact_details: Notices contact details
+            payment_details: Payment Details
+            security_policy_document: Security Policy Document
+          pricing:
+            description_html: "<p>Your requirements have been priced using rates submitted by suppliers when they competed to the join the framework.</p> <p>If the lowest priced supplier declines the opportunity, the details of the second place supplier will be displayed to you with the option to proceed with them.</p> <p>Prices shown are contract values, excluding VAT, and are based on the contract term and service requirements that you have entered.</p> <p class='ccs-font-weight-semi-bold'>You can switch to a further competition at any time. You may wish to consider a further competition if:</p> <ul class='govuk-list govuk-list--bullet'> <li>you feel you could achieve a more competitive price if suppliers had the opportunity to submit bespoke prices for your requirements </li> <li>you wish to further test quality</li> <li>you wish to alter any of the service standards, service specification, or terms and conditions</li> <li>you have sufficient time in your procurement schedule</li> </ul>"
+            lowest_price_supplier: lowest priced supplier
+            pricing_header: Here are the contract prices by supplier shown in ascending order.
+            pricing_warning_html: You are only shown the name of the <strong>lowest price supplier</strong>, as they can offer the best price for your requirements.
+        dashboard_tables:
+          closed:
+            no_closed: You do not have any closed contracts
+          contracts:
+            no_live: You do not have any live contracts
+          in_draft:
+            no_drafts: You do not have any offers in the draft
+          searches:
+            no_searches: You do not have any searches
+          sent_offers:
+            no_sent: You do not have any sent offers
+        detailed_search_summary:
+          delete_message: Are you sure you want to delete this search result? This action cannot be un-done.
+          detailed_search_description: Once you have answered all of the questions below, you will be provided with an estimated cost and shortlist of suppliers in the recommended sub-lot.
+          detailed_search_summary_title: Detailed search summary
         edit:
           back_to_detailed_summary: Back to detailed search summary
           building_services:
@@ -467,9 +498,16 @@ en:
           region: Region
           service: Service
         index:
+          closed_title: Closed
+          contracts_title: Contracts
+          direct_award_title: Direct award
+          in-draft-title: In draft
           manage_procurements: Procurements dashboard
+          searches_title: Searches
+          sent_offers: Sent offers
+          start_new_search: Start a new search
         new:
-          cancel_text: Cancel, and return to the procurement dashboard
+          cancel_text: Cancel, and return to the procurements dashboard
           save_for_later: Save for later
           save_your_search: Save your search
           search_result_body_html: Here are the suppliers that can provide your services in the regions selected.<br/>Your requirements will fall into one of the sublots below, subject to your total contract value.
@@ -486,6 +524,22 @@ en:
           question: Where are your buildings located?
           remove_all: Remove all
           subtitle: Choose one or more regions, based on building's location where you require facilities management services.
+        results:
+          any_changes: Any changes to the information provided may result in a different outcome.
+          building_services_summary: Buildings and services summary
+          da_list_html: "<li>the award of a contract directly to the supplier with the lowest price for your requirements, without the need for further competition</li> <li>the contract is awarded based on price only (using rates submitted by suppliers when they competed to join the framework)</li> <li>standard call-off terms and conditions</li><li>a quick way of identifying a suitable supplier and awarding a contract</li>\n"
+          direct_award_label_html: "<b>Direct award</b> (the most competitive direct award price is %{price})"
+          estimated_cost: Estimated cost
+          estimated_cost_calc_html: Your estimated cost has been calculated using a combination of framework and benchmark pricing, and your current cost.  <br/>This cost has been used to place you in the correct sub-lot.
+          estimated_cost_how: How your estimated cost was calculated?
+          fc_list_html: "<li>shortlisted suppliers are invited to compete against each other to give you the best outcome</li> <li>both price and quality are tested in a further competition</li> <li>you can tailor service requirements and terms and conditions to suit your needs</li> <li>a tender period is involved in a further competition, so timescales are longer than a direct award</li>\n"
+          further_competition_html: "<b>Further competition</b>"
+          sub-lot: Sub-lot
+          sub-text: 'Based on information provided, this procurement is eligible for the following sub-lot:'
+          suppliers_shortlisted_html: <span style=""font-size:larger"">%{count}</span> supplier(s) shortlisted
+          what_is_da: What is a direct award?
+          what_is_fc: What is further competition?
+          who_are: who are able to provide the services your require in your location(s)
         review_contract:
           attachment_1:
             guidance: This document tells the supplier important information about the contract you have offered.
@@ -602,14 +656,52 @@ en:
           service_specification_doc: Read the service specification document
           services_selected: Services selected
           subtitle: Choose all facilities management services required within your estate, even if you want services in just one building.
-        show:
-          delete_message: Are you sure you want to delete this search result?  This action cannot be un-done.
       sessions:
         new:
           email_address: Email address
           email_hint_html: Enter the email address you used to set up your <abbr>CCS</abbr> account.
           forgotten_password_html: I've forgotten my password
           password: Password
+      supplier:
+        passwords:
+          edit:
+            confirm_code: Confirm Code
+            confirm_new_password: Confirm new password
+            heading: Reset your password
+            lead: Reset password for
+            new_password: New password
+            password: Your password must have
+          forgot_password_confirmation:
+            heading: A reset email has been sent
+            lead: If the email address you've entered belongs to a Crown Commercial Service account, we'll send a link to reset the password.
+            text01: If you don't receive this, email
+            text02_html: <a href="mailto:support@crowncommercial.gov.uk">support@crowncommercial.gov.uk</a>
+          new:
+            email: Email address
+            email_hint_html: This is the email address you used to set up the <abbr title="Crown Commercial Service">CCS</abbr> account.
+            heading: Reset password
+            lead: Enter your email address and we'll send you verification code so you can reset your password. Password reset verification codes are only valid for 24 hours.
+          password_reset_success:
+            heading: You have successfully changed your password
+            lead: You can now sign in to your Crown Commercial Service account
+        sessions:
+          new:
+            email_address: Email address
+            email_hint_html: Enter the email address you used to register
+            forgotten_password_html: I've forgotten my password
+            password: Password
+        users:
+          new_password_required:
+            confirm_your_password: Confirm your password
+            create_your_password: Create a password you'll remember
+            heading: Change your password
+            intro: This is the first time you've signed in to your account. You need to reset your password.
+          sms_mfa:
+            access_code: Access code
+            content: It may take a few minutes to arrive.
+            heading: Enter your access code
+            lead: 'We just sent a 6 digit access code by text to:'
+            resend_the_confirmation_code_html: To receive a new access code, <a href="%{link}"> sign in</a> again.
       users:
         new_password_required:
           confirm_your_password: Confirm your password
@@ -661,9 +753,12 @@ en:
         confirm_code: Confirm Code
         confirm_new_password: Confirm new password
         heading: Reset your password
+        heading1: A reset email has been sent
         lead: Reset password for
+        lead1: If the email address you've entered belongs to a Crown Commercial Service account, we'll send instructions to reset the password.
         new_password: New password
         password: Your password must have
+        text01: If you don't receive this, contact CCS customer services team.
       forgot_password_confirmation:
         heading: A reset email has been sent
         lead: If the email address you've entered belongs to a Crown Commercial Service account, we'll send a link to reset the password.
