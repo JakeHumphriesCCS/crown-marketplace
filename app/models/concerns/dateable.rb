@@ -15,10 +15,10 @@ module Dateable
     no_of_extra_days / end_date.end_of_month.day.to_f >= 0.5 ? 0.5 : 0
   end
 
-  # if the end date day is < than start date day that means that the difference between them is less than 1 month
-  # if the difference between dates is less then 1 month, we remove one month from the no_of_months, as a half month will be added
+  # if both start_date and end_date are at the end of the month, we do not need to remove 1 month
+  # otherwise, if end_date is less than start_date, that means that we need to remove 1 month from no_of_months (0.5 will be added by the half_month method)
   def one_month_if_needed(end_date, start_date)
-    return 0 if end_date.month != end_date.next_day.month
+    return 0 if end_date.month != end_date.next_day.month && start_date.month != start_date.next_day.month
 
     (end_date.day >= start_date.day ? 0 : 1)
   end

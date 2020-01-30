@@ -56,7 +56,7 @@ RSpec.feature 'FTA to Perm fee calculator', type: :feature, supply_teachers: tru
     click_on I18n.t('common.submit')
     fill_in_contract_end_date date_5_months_ago
     click_on I18n.t('common.submit')
-    fill_in_hire_date date_1_month_from_now
+    fill_in_hire_date date_1_month_from_now + 2.day
     click_on I18n.t('common.submit')
 
     expect_fee_text I18n.t('.supply_teachers.home.fta_to_perm_fee.no_fee.hire_not_within_6_months')
