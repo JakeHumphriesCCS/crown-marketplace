@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_27_104344) do
+ActiveRecord::Schema.define(version: 2020_02_03_170223) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -149,6 +149,29 @@ ActiveRecord::Schema.define(version: 2020_01_27_104344) do
     t.datetime "updated_at", null: false
     t.index ["facilities_management_supplier_id"], name: "index_fm_service_offerings_on_fm_supplier_id"
     t.index ["lot_number"], name: "index_fm_service_offerings_on_lot_number"
+  end
+
+  create_table "facilities_management_supplier_details", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "name", limit: 255
+    t.boolean "lot1a"
+    t.boolean "lot1b"
+    t.boolean "lot1c"
+    t.boolean "direct_award"
+    t.boolean "sme"
+    t.string "contact_name", limit: 255
+    t.string "contact_email", limit: 255
+    t.string "contact_number", limit: 255
+    t.string "duns", limit: 255
+    t.string "registration_number", limit: 255
+    t.string "address_line_1", limit: 255
+    t.string "address_line_2", limit: 255
+    t.string "address_town", limit: 255
+    t.string "address_county", limit: 255
+    t.string "address_postcode", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_facilities_management_supplier_details_on_user_id"
   end
 
   create_table "facilities_management_suppliers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

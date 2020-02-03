@@ -2,6 +2,7 @@ module CCS
   require 'pg'
   require 'csv'
   require 'json'
+  require 'roo'
   require Rails.root.join('lib', 'tasks', 'distributed_locks')
 
   def self.supplier_data
@@ -34,6 +35,35 @@ module CCS
                           + supplier['supplier_id'] + "', '" + values + "')"
         db.query query
       end
+    end
+  rescue PG::Error => e
+    puts e.message
+  end
+
+  def self.fm_supplier_contact_details
+    FacilitiesManagement::SupplierDetail.destroy_all
+    supplier_contact_details = Roo::Spreadsheet.open(Rails.root.join('data', 'facilities_management', 'RM3830 Suppliers Details (for Dev & Test).xlsx'), extension: :xlsx)
+    supplier_contact_details.sheet(0).drop(1).each do |row|
+      sd = FacilitiesManagement::SupplierDetail.new(
+        user: User.find_by(email: row[8]),
+        name: row[1].to_s.strip,
+        lot1a: row[2].to_s.strip.downcase == 'x',
+        lot1b: row[3].to_s.strip.downcase == 'x',
+        lot1c: row[4].to_s.strip.downcase == 'x',
+        direct_award: row[5].to_s.strip.downcase == 'yes',
+        sme: row[6].to_s.strip.downcase == 'yes',
+        contact_name: row[7].to_s.strip,
+        contact_email: row[8].to_s.strip,
+        contact_number: row[9].to_s.strip,
+        duns: row[10].to_s.strip,
+        registration_number: row[11].to_s.strip,
+        address_line_1: row[12].to_s.strip,
+        address_line_2: row[13].to_s.strip,
+        address_town: row[14].to_s.strip,
+        address_county: row[15].to_s.strip,
+        address_postcode: row[16].to_s.strip
+      )
+      sd.save(validate: false)
     end
   rescue PG::Error => e
     puts e.message
@@ -95,6 +125,7 @@ namespace :db do
     p 'Loading FM Suppliers static'
     DistributedLocks.distributed_lock(152) do
       CCS.fm_suppliers
+      CCS.fm_supplier_contact_details
     end
   end
 
