@@ -18,6 +18,7 @@ class FacilitiesManagement::DeliverableMatrixSpreadsheetCreator
     @package.to_stream.read
   end
 
+  # rubocop:disable Metrics/AbcSize
   def build
     @package = Axlsx::Package.new do |p|
       p.workbook.styles do |s|
@@ -44,10 +45,18 @@ class FacilitiesManagement::DeliverableMatrixSpreadsheetCreator
           end
         end
 
+        # only add if any service selected??
+        p.workbook.add_worksheet(name: 'Service Periods') do |sheet|
+          add_header_row(sheet, ['Service Reference', 'Service Name', 'Specific Service Periods'])
+          add_service_periods(sheet)
+          style_service_matrix_sheet(sheet, standard_column_style) if sheet.rows.size > 1
+        end
+
         add_customer_and_contract_details(p) if @procurement
       end
     end
   end
+  # rubocop:enable Metrics/AbcSize
 
   private
 
@@ -255,6 +264,58 @@ class FacilitiesManagement::DeliverableMatrixSpreadsheetCreator
     @buildings.count.times { column_widths << 20 }
     sheet["A2:D#{remove_help_cafm_services(@services).count + 1}"].each { |c| c.style = style }
     sheet.column_widths(*column_widths)
+  end
+
+  def add_service_periods(sheet)
+    standard_style = sheet.styles.add_style sz: 12, border: { style: :thin, color: '00000000' }, bg_color: 'FCFF40', alignment: { wrap_text: true, vertical: :center, horizontal: :center }, fg_color: '6E6E6E'
+
+    hours_required_services.each do |service|
+      Date::DAYNAMES.each do |day|
+        row_values = [service['code'], service['name'], day]
+        @building_ids_with_service_codes.each do |building|
+          service_measure = @units_of_measure_values.select { |measure| measure[:service_code] == service['code'] && measure[:building_id] == building[:building_id] }.first
+          row_values << add_service_measure_row_value(service_measure, day)
+        end
+
+        sheet.add_row row_values, style: standard_style, height: standard_row_height
+      end
+    end
+  end
+
+  def hours_required_services
+    allowed_services = []
+    FacilitiesManagement::StaticData.work_packages.select { |work_package| allowed_services << work_package['code'] if work_package['metric'] == 'Number of hours required' }
+    @services.select { |service| allowed_services.include? service['code'] }
+  end
+
+  def add_service_measure_row_value(service_measure, day)
+    return nil if service_measure.nil? || service_measure[:uom_value].instance_of?(String)
+
+    day_symbol = day.downcase.to_sym
+    case service_measure[:uom_value][day_symbol]['service_choice']
+    when 'not_required'
+      'Not required'
+    when 'all_day'
+      'all day(24 hours)'
+    when 'hourly'
+      determine_start_hourly_text(service_measure, day_symbol) + ' to ' + determine_end_hourly_text(service_measure, day_symbol)
+    else
+      'unknown??' + service_measure[:uom_value][day_symbol]['service_choice']
+    end
+  end
+
+  def determine_start_hourly_text(service_measure, day_symbol)
+    start_hour = format('%02d', service_measure[:uom_value][day_symbol]['start_hour'])
+    start_minute = format('%02d', service_measure[:uom_value][day_symbol]['start_minute'])
+    start_ampm = service_measure[:uom_value][day_symbol]['start_ampm'].downcase
+    start_hour + ':' + start_minute + start_ampm
+  end
+
+  def determine_end_hourly_text(service_measure, day_symbol)
+    end_hour = format('%02d', service_measure[:uom_value][day_symbol]['end_hour'])
+    end_minute = format('%02d', service_measure[:uom_value][day_symbol]['end_minute'])
+    end_ampm = service_measure[:uom_value][day_symbol]['end_ampm'].downcase
+    end_hour + ':' + end_minute + end_ampm
   end
 
   def remove_help_cafm_services(services)
